@@ -176,3 +176,4 @@ autoload -Uz compinit
 compinit
 # End of Docker CLI completions
 eval "$(zoxide init zsh)"
+defaults write com.apple.dock expose-animation-duration -float 0.1
