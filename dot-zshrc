@@ -170,3 +170,9 @@ source <(fzf --zsh)
 alias ls="eza -la --group-directories-first"
 # for zsh-autosuggestions
 bindkey '`' autosuggest-accept
+# The following lines have been added by Docker Desktop to enable Docker CLI completions.
+fpath=(/Users/szymon.wesolowski1/.docker/completions $fpath)
+autoload -Uz compinit
+compinit
+# End of Docker CLI completions
+eval "$(zoxide init zsh)"

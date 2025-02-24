@@ -23,5 +23,9 @@ _darcs
 ^/LICENSE.*
 ^/COPYING
 
+# GNU stow default settings
 .stowrc
-DS_Store
+.DS_Store
+
+# Rider keymap
+VsKeymapFork.xml
