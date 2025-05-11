@@ -19,8 +19,10 @@ source $ZSH/oh-my-zsh.sh
 
 
 # Node Version Manager (NVM) setup
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+export NVM_DIR="$HOME/.nvm"
+  [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"  # This loads nvm
+  [ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
+
 
 # Homebrew setup
 alias axbrew='arch -x86_64 /usr/local/homebrew/bin/brew'
@@ -78,7 +80,7 @@ source <(fzf --zsh)
 
 # Aliases
 alias ls="eza -la --group-directories-first"
-alias vs="/Applications/Visual\ Studio\ Code\ -\ Insiders.app/Contents/Resources/app/bin/code"
+alias code="/Applications/Visual\ Studio\ Code\ -\ Insiders.app/Contents/Resources/app/bin/code"
 
 # Zsh Autosuggestions
 bindkey '`' autosuggest-accept
