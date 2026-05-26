@@ -251,7 +251,7 @@ You have the `@playwright/mcp` MCP server available. When writing or debugging P
 ## Build & Development
 
 ```bash
-npm install           # requires GITHUB_PACKAGES_AUTH_TOKEN
+npm install           # requires GITHUB_TOKEN
 npm run dev           # dev server with Turbopack
 npm run build         # production build
 npm run lint          # ESLint
@@ -260,7 +260,7 @@ npm run prettier      # format with Prettier
 
 ### Docker
 ```bash
-docker build --secret id=GITHUB_PACKAGES_AUTH_TOKEN -t app-name .
+docker build --secret id=GITHUB_TOKEN -t app-name .
 docker run --rm -it -p 3000:80 app-name
 ```
 
