@@ -35,33 +35,52 @@ src/
 ├── actions/          # Server actions
 ├── app/             # Next.js App Router pages and layouts
 ├── components/      # Reusable React components
+├── constants/       # Shared text/wording (e.g. button labels, error messages)
 ├── lib/             # Utilities and helpers
 ├── config.ts        # Centralised environment configuration
 └── global.css       # Global styles and Fable imports
 ```
 
+### File naming conventions
+- `component.tsx` — server component
+- `component.client.tsx` — client component
+- `component.test.tsx` — Jest unit test
+- `component.e2e.ts` — Playwright end-to-end test
+- `component.module.css` — CSS module
+
 ## Code Style & Standards
 
 - **TypeScript strict mode** — no `any`, explicit types everywhere
+- **Prefer `interface`** over `type` for object shapes; use `type` for unions and primitives
+- **Avoid enums** — use `const` maps instead:
+  ```ts
+  const Direction = { Up: 'up', Down: 'down' } as const
+  type Direction = typeof Direction[keyof typeof Direction]
+  ```
 - **No `console.log`** — use structured logging: `const logger = createComponentLogger('ComponentName')` then `logger.info()`, `logger.error()` etc.
 - **Centralised env vars** — always access via `src/config.ts`, never use `process.env` directly elsewhere
-- **Named exports** — prefer over default exports for components
-- **`const` arrow functions** for components: `const MyComponent = () => {}`
+- **Named exports** — prefer over default exports for components (default exports are acceptable)
+- **`function` keyword** for named components and pure functions; arrow functions for callbacks and inline expressions
 - **Template literals** — only allow `string`, `number`, and `boolean` expressions
+- **`import type`** for type-only imports: `import type { MyType } from './types'`
+- **`@/` alias** for all internal imports — never use relative `../../` paths
+- **Descriptive variable names** — use auxiliary verbs: `isLoading`, `hasError`, `hasSubmitted`
+- **Avoid early abstraction** — write code where it is used; only extract when needed in multiple places
+- **Minimize `useEffect` and `setState`** — favour Server Components and server-side data fetching
 
 ## Design System (Fable)
 
 - Use Fable components from `@sainsburys-tech/fable` wherever possible before building custom ones
-- **Always use `fable:` prefix** for all Tailwind utility classes:
-  ```tsx
-  className="fable:flex fable:items-center fable:px-4"
-  ```
+- **Tailwind utility classes use `fable:` prefix** (e.g. `fable:flex fable:items-center fable:px-4`)
+- **Custom CSS class names use `ds-` prefix** — any CSS you write for component-specific styles should use `ds-` (e.g. `.ds-product-card`)
+- If migrating old CSS, update any `ds-` prefixed Tailwind utilities to `fable:` — `ds-` remains correct only for hand-written CSS class names
 - Hover states: `hover:fable:bg-gray-50`
 - Use `clsx` for conditional class application:
   ```tsx
   import clsx from 'clsx'
   className={clsx('fable:flex fable:gap-2', { 'fable:hidden': isHidden })}
   ```
+- Implement responsive design with a **mobile-first** approach
 
 ### CSS Modules for Complex Styles
 
@@ -90,9 +109,31 @@ The app supports multiple Sainsbury's brands via Fable. Enable additional brands
 
 - **Server Components by default** — add `'use client'` only when interactivity requires it
 - Client component files use `.client.tsx` suffix
-- **Server actions** for form submissions and data mutations
-- Use `next-safe-action` for type-safe server actions
+- **Server actions** — mark with `'use server'` directive, use `next-safe-action` for type-safe actions
 - Use Zod schemas for all user input validation
+- Use `next/image` instead of `<img>` for all images — optimise with WebP format, explicit `width`/`height`, lazy loading
+- Use `next/font` for font loading — never import fonts via CSS `@import`
+- Use `next/dynamic` with `{ ssr: false }` for heavy client-only components to reduce bundle size
+- Use `nuqs` for URL search parameter state management
+- Do not reach for `useCallback`/`useMemo` unless there is a measured performance problem — avoid premature optimisation
+- Optimise for Core Web Vitals: LCP, CLS, FID
+
+## Page Patterns
+
+- Export `metadata` (or `generateMetadata`) from every page for SEO
+- Add a `loading.tsx` alongside pages that have async data fetching — use `<Suspense>` for granular loading states
+- Add `error.tsx` for client-side error boundaries at route segment level
+- Add `not-found.tsx` for custom 404 handling
+
+## Accessibility
+
+- Use semantic HTML elements (`<nav>`, `<main>`, `<section>`, `<article>`, `<button>`) over generic `<div>`
+- All interactive elements must be keyboard accessible
+- Always provide `alt` text for images — empty `alt=""` for decorative images
+- Use `aria-*` attributes when semantic HTML isn't sufficient
+- Ensure Fable components receive appropriate accessibility props (check Storybook for required props)
+- Maintain sufficient colour contrast — rely on Fable design tokens which are a11y compliant
+
 
 ## Authentication
 
@@ -122,17 +163,64 @@ The app supports multiple Sainsbury's brands via Fable. Enable additional brands
 
 ## Testing
 
-- Co-locate unit tests alongside components: `component.test.tsx`
-- Use **React Testing Library** — test behaviour, not implementation
-- Use `jest.mock()` for server actions and external dependencies
-- Use snapshots sparingly — prefer behavioural assertions
+### When to use each type
+
+| Test type | Tool | When to use |
+|-----------|------|-------------|
+| Component / unit | Jest + React Testing Library | Isolated component behaviour, logic, rendering |
+| End-to-end | Playwright | Full user journeys, cross-page flows, auth, real browser |
+
+### Component Tests (Jest + React Testing Library)
+
+- Co-locate tests alongside components: `component.test.tsx`
+- Test behaviour and output — not implementation details or internal state
+- Use `jest.mock()` for server actions, API calls, and external dependencies
+- Use `@/` path alias in all imports
 - `ResizeObserver` is polyfilled for Fable component compatibility
-- Use `@/` path alias in test imports
+- Use snapshots sparingly — prefer explicit behavioural assertions
+- Query elements using accessible queries in priority order:
+  1. `getByRole` — preferred
+  2. `getByLabelText`, `getByPlaceholderText`
+  3. `getByText`
+  4. `getByTestId` — last resort only
 
 ```bash
 npm run test          # run all tests
 npm run test:watch    # watch mode
 ```
+
+### End-to-End Tests (Playwright)
+
+- Name files `feature.e2e.ts` — co-locate with the feature or place in `e2e/` folder
+- Use the **Page Object Model** to encapsulate page interactions:
+  ```ts
+  // pages/login.page.ts
+  export class LoginPage {
+    constructor(private page: Page) {}
+    async goto() { await this.page.goto('/login') }
+    async login(email: string) { await this.page.getByLabel('Email').fill(email) }
+  }
+  ```
+- **Prefer accessible locators** over CSS selectors or `data-testid`:
+  - `page.getByRole('button', { name: 'Submit' })`
+  - `page.getByLabel('Email address')`
+  - `page.getByText('Confirm order')`
+  - Use `data-testid` only when no accessible alternative exists
+- Use `expect(locator).toBeVisible()` and Playwright's built-in auto-waiting — never add manual `sleep`/`waitForTimeout`
+- Use `page.route()` to intercept and mock API calls where needed
+- Use Playwright fixtures for shared setup (auth state, test data)
+- Store authenticated state in `playwright/.auth/` and reuse across tests to avoid repeated logins
+
+### Playwright MCP Server
+
+You have the `@playwright/mcp` MCP server available. When writing or debugging Playwright tests, the agent can use it to:
+
+- **Navigate** to the running app and take a page snapshot to understand the DOM structure before writing selectors
+- **Verify UI** — take screenshots after changes to confirm the result looks correct
+- **Debug failing tests** — interact with the page live to identify correct locators
+- **Accessibility checks** — inspect the accessibility tree to validate `getByRole` selectors
+
+> When asked to write Playwright tests, use the MCP server to navigate to the relevant page first, take a snapshot, then write selectors based on what is actually rendered — not assumed structure.
 
 ## Common Patterns
 

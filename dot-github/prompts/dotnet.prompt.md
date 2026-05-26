@@ -29,6 +29,9 @@ Follow **Clean Architecture**:
 - Interfaces in separate files
 - File-scoped namespaces throughout
 - Keep controllers thin — business logic belongs in services/domain
+- **Prefer Controllers** over Minimal APIs unless it's a small/simple project
+- Use `IOptions<T>` pattern for configuration — never inject raw `IConfiguration` into services
+- Use `ProblemDetails` (RFC 7807) for consistent error response shapes
 
 ## Code Style
 
@@ -41,6 +44,10 @@ Follow **Clean Architecture**:
 - Prefer LINQ and lambda expressions for collection operations
 - No unused `using` statements
 - Avoid unnecessary third-party dependencies — prefer built-in .NET capabilities
+- Use `sealed` on classes not designed for inheritance
+- Enable nullable reference types (`<Nullable>enable</Nullable>`) — treat nullable warnings as errors
+- Prefix private fields with `_` (e.g., `private readonly IService _service`)
+- Suffix async methods with `Async` (e.g., `GetUserAsync`)
 
 ## Naming Conventions
 
@@ -87,11 +94,14 @@ Follow **Clean Architecture**:
 - Enforce HTTPS and SSL
 - Implement CORS policies
 - Follow Azure security best practices
-- Never commit secrets — use environment variables with user secrets 
+- Never commit secrets — use environment variables or Azure Key Vault
 
 ## Entity Framework Core & Migrations
 
+- **Prefer EF Core** for data access; Dapper is acceptable for complex read-only queries where performance matters
 - Repository pattern alongside EF Core for data access
+- Use `AsNoTracking()` for read-only queries
+- Avoid raw SQL unless absolutely necessary — use EF Core methods
 - Apply migrations automatically on startup in non-production, or via deployment pipeline
 - Add migrations:
   ```bash
@@ -101,6 +111,16 @@ Follow **Clean Architecture**:
 
 ## Testing
 
+### When to use each type
+
+| Test type | Project suffix | What it tests |
+|-----------|---------------|---------------|
+| Unit | `.Tests.Unit` | Isolated classes, domain logic, services — no I/O |
+| Integration | `.Tests.Integration` | Full HTTP stack in-process, real DB via Docker |
+| Functional / E2E | `.Tests.Functional` | Against a real deployed environment, no mocking |
+
+> **Note:** True end-to-end tests (browser → API → DB) are driven from the frontend (Playwright). The backend owns integration tests that verify the HTTP API behaves correctly in-process.
+
 ### Unit Tests
 - Framework: **xUnit v3**
 - Mocking: **NSubstitute** — never use Moq
@@ -108,18 +128,45 @@ Follow **Clean Architecture**:
 - Project suffix: `.Tests.Unit`
 - Remove the default empty `UnitTest1.cs`
 - Test naming: `MethodName_Scenario_ExpectedBehavior`
+- Structure tests with Arrange / Act / Assert sections
+- Use `[Theory]` with `[InlineData]` for data-driven tests
 - Coverage: success scenarios, failure scenarios (404, exceptions), `.Received()` call verification, parameter validation
 
 ### Integration Tests
-- Stub HTTP calls with **WireMock**
-- Use **Testcontainers** for third-party dependencies (databases, etc.)
-- No NSubstitute in integration tests
 - Project suffix: `.Tests.Integration`
+- Use **`WebApplicationFactory<TEntryPoint>`** (`Microsoft.AspNetCore.Mvc.Testing`) to spin up the real API in-process
+- Use **`TestHost`** (`Microsoft.AspNetCore.TestHost`) as the HTTP test server — no real network port needed
+- Use **Testcontainers** ([dotnet.testcontainers.org](https://dotnet.testcontainers.org/)) to spin up real infrastructure in Docker (PostgreSQL, Redis, etc.) — do not use in-memory database substitutes
+- Stub outbound HTTP calls with **WireMock.Net** — do not make real external HTTP calls in integration tests
+- No NSubstitute — dependencies should be real or stubbed via WireMock/Testcontainers
+- Share a single `WebApplicationFactory` instance across the test class using `IClassFixture<T>` to avoid repeated startup cost
+- Override services in `WebApplicationFactory.ConfigureWebHost` to point at test infrastructure (e.g. Testcontainer connection strings)
+
+Example pattern:
+```csharp
+public class MyApiTests : IClassFixture<ApiFactory>
+{
+    private readonly HttpClient _client;
+
+    public MyApiTests(ApiFactory factory)
+    {
+        _client = factory.CreateClient();
+    }
+
+    [Fact]
+    public async Task GetProduct_WhenExists_ReturnsOk()
+    {
+        var response = await _client.GetAsync("/products/123");
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+    }
+}
+```
 
 ### Functional Tests
-- End-to-end tests against a real environment
-- No mocking of any kind
 - Project suffix: `.Tests.Functional`
+- Tests run against a real deployed environment (dev/staging)
+- No mocking of any kind — real services, real data
+- Used for smoke testing after deployment, not as part of local dev loop
 
 ## Build & CI Workflow
 
@@ -149,7 +196,7 @@ dotnet test --logger trx --collect:"XPlat Code Coverage"
 ## Deployment & Feature Flags
 
 - Deploy via Kubernetes using Bosun YAML configuration
-- Use simple environment variables feature flags for safe rollouts
+- Use feature flags for safe rollouts
 - Feature flags must be removable without impacting deployed resources
 - Document any flags that affect infrastructure or schema
 
