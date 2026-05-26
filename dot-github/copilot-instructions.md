@@ -82,7 +82,21 @@
 ## Git Conventions
 - Use conventional commits: `feat:`, `fix:`, `chore:`, `docs:`, `refactor:`, `test:`, `ci:`
 - Branch naming: `{type}/{ticket-id}-short-description` (e.g., `feat/STAT-138-blue-yonder-client`)
-- Keep commits small and focused — one logical change per commit
+- **Never work directly on `main`** — always create a feature branch before starting work
+- Always check which branch you are on before making any changes
+- Keep commits small and focused — one logical unit of change per commit
+- Commit after each meaningful piece of work — don't accumulate everything into one commit at the end
+- Include the ticket ID in commit messages where applicable
+
+## Workflow
+- Before starting any task, read the relevant files — never assume their content
+- Only change code that is necessary for the task — do not refactor unrelated code
+- If you discover something broken outside the scope of the current task, report it rather than silently fixing it
+- Do not add features or behaviour that were not explicitly asked for
+- Always verify that imports, methods, types, and file paths you reference actually exist in the codebase — never invent them
+- Never comment out, skip (`t.Skip`, `[Ignore]`, `xit`), or modify tests just to make them pass — fix the code instead
+- If a test legitimately needs to change because requirements changed, explain why before modifying it
+- If you are stuck or cannot proceed after a reasonable attempt, **stop and explain the problem clearly** — do not loop indefinitely trying variations of the same approach
 
 ## Security
 - Never commit secrets, credentials, API keys, or connection strings

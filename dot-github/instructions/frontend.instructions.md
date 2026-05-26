@@ -26,6 +26,8 @@ You are working on a **Next.js 15 frontend application** built with the Sainsbur
 - **@sainsburys-tech/images** — logos and branded images
 - **@sainsburys-tech/theme-provider** — theming
 
+> **Fable Storybook** at https://sainsburys-tech.github.io/design-systems/ is the authoritative reference for all Fable components. Use it to look up available props, variants, sizes, slots, design tokens, and usage examples. Before using or building any UI component, check the Storybook first — the component may already exist in Fable.
+
 ### Dev Tools
 - **ESLint** — TypeScript strict rules + SonarJS
 - **Prettier** — code formatting
@@ -241,9 +243,10 @@ You have the `@playwright/mcp` MCP server available. When writing or debugging P
 
 ### Using Fable Components
 1. Import from `@sainsburys-tech/fable`
-2. Reference [Fable Storybook](https://sainsburys-tech.github.io/design-systems/) for component APIs
-3. Always use `fable:` prefix on Tailwind classes
-4. Ensure proper accessibility attributes
+2. **Always look up the component in [Fable Storybook](https://sainsburys-tech.github.io/design-systems/) before using it** — it documents all props, variants, sizes, slots, default values, and code examples; it is the single source of truth for the Fable design system
+3. Design tokens (colours, spacing, typography) are documented in the Storybook and can also be browsed at https://design-systems-tokens.ext.prd.jspaas.uk/
+4. Always use `fable:` prefix on Tailwind classes
+5. Ensure proper accessibility attributes (required `aria-*` props are documented per component in Storybook)
 
 ## Build & Development
 
