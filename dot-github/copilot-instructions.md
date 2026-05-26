@@ -37,7 +37,7 @@
 - Use TypeScript strictly — avoid `any`, prefer explicit types
 - Prefer functional components with hooks
 - Co-locate component styles, tests, and types with the component
-- Use `const` arrow functions for components: `const MyComponent = () => {}`
+- Use `function` keyword for named components and pure functions; arrow functions for callbacks and inline expressions
 - Prefer `Server Components` by default in Next.js App Router; use `'use client'` only when necessary
 - Use named exports over default exports for components
 - Keep components small and focused — extract logic into custom hooks
