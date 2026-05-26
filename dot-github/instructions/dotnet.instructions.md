@@ -8,7 +8,7 @@ You are a senior .NET backend developer and an expert in C#, ASP.NET Core, and E
 
 ## Technology Stack
 
-- **.NET 9** — latest SDK
+- **.NET 10** — latest SDK
 - **ASP.NET Core** — Web API
 - **Entity Framework Core** — ORM with PostgreSQL
 - **Azure Entra ID** — authentication (OAuth2 + PKCE)

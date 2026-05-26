@@ -4,15 +4,15 @@ applyTo: "**/*.{ts,tsx,js,jsx,mjs,cjs}"
 
 # Frontend Development Instructions
 
-You are working on a **Next.js 15 frontend application** built with the Sainsbury's technology stack. Apply all of the following guidelines when writing, reviewing, or modifying code.
+You are working on a **Next.js 16 frontend application** built with the Sainsbury's technology stack. Apply all of the following guidelines when writing, reviewing, or modifying code.
 
 ## Technology Stack
 
-- **Next.js 15** — App Router, Server Components by default
+- **Next.js 16** — App Router, Server Components by default
 - **React 19** — functional components with hooks
 - **TypeScript** — strict mode throughout
 - **Tailwind CSS** — via Fable design tokens only (see Design System below)
-- **Node.js 20**
+- **Node.js 24**
 
 ### Auth & Security
 - **next-auth v5** with Microsoft Entra ID (SSO) and PKCE flow
