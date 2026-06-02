@@ -29,3 +29,4 @@ _darcs
 
 # Rider keymap
 VsKeymapFork.xml
+^\.github$
