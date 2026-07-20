@@ -53,6 +53,7 @@ src/
 - `component.test.tsx` — Jest unit test
 - `component.e2e.ts` — Playwright end-to-end test
 - `component.module.css` — CSS module
+- `proxy.ts` — Next.js proxy (request interception, auth guards). **Never name this `middleware.ts`** — see Proxy section below.
 
 ## Code Style & Standards
 
@@ -143,10 +144,34 @@ The app supports multiple Sainsbury's brands via Fable. Enable additional brands
 
 ## Authentication
 
-- All protected routes enforced via middleware
+- All protected routes enforced via `src/proxy.ts` (Next.js 16+ proxy convention — see Proxy section below)
 - Define protected paths in `src/config.ts` as `AUTH_PROTECTED_PATHS`
 - Use `await auth()` in server components to access session
 - SSO redirect URL pattern: `<domain>/api/auth/callback/entra-pkce`
+
+## Proxy (Request Interception)
+
+> **Next.js 16+ renamed `middleware.ts` → `proxy.ts` and `export function middleware` → `export function proxy`.**
+> Never create or suggest `middleware.ts` — it is deprecated and will not run. Always use `proxy.ts` with a named `proxy` export.
+
+```ts
+// src/proxy.ts — correct for Next.js 16+
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
+
+export async function proxy(request: NextRequest) {
+  // request interception logic
+  return NextResponse.next()
+}
+
+export const config = {
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
+}
+```
+
+- Use `proxy.ts` for auth guards, redirects, and other request-level logic
+- Keep proxy logic minimal — prefer server component checks and server actions where possible
+- See [Next.js proxy docs](https://nextjs.org/docs/messages/middleware-to-proxy) for migration details
 
 ## Security Requirements
 
@@ -154,7 +179,7 @@ The app supports multiple Sainsbury's brands via Fable. Enable additional brands
 - CSP headers configured in `next.config.js`
 - HSTS enabled in production only
 - Frame options: DENY (prevent clickjacking)
-- `unsafe inline/eval` only in development mode
+- `unsafe-inline` required for `script-src` (Next.js RSC streaming) and `style-src` (Fable StylesManager) in all environments; `unsafe-eval` additionally required in development only
 
 ## Linting
 
