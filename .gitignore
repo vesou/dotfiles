@@ -616,3 +616,8 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.toptal.com/developers/gitignore/api/macos,windows,csharp,jetbrains,rider
+
+### Tmux Plugin Manager (TPM) ###
+# TPM-managed plugin clones (tpm, catppuccin-tmux, tmux-continuum, tmux-resurrect, etc.)
+# These are reinstalled by TPM, not tracked in the repo.
+dot-config/tmux/plugins/
