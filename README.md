@@ -32,3 +32,21 @@ stow --target=$HOME --restow .
 Layout auto-restores on tmux start (`@continuum-restore on`) and auto-saves every 15 minutes (`@continuum-save-interval 15`). You can also save manually with `prefix + Ctrl-s` and restore manually with `prefix + Ctrl-r`.
 
 Note: this restores session/window/pane structure and working directories, not literally-resumed running processes - a long-running foreground command does not keep running across the reboot itself.
+
+## Herdr: initial setup
+
+`dot-config/herdr/config.toml` is stowed the same way as the other `dot-config/*` packages. Herdr auto-generates its own `~/.config/herdr/config.toml` (with just `onboarding = false`) the first time it runs, so on a machine where Herdr has already been launched, stow will refuse to link over that pre-existing real file instead of silently overwriting it:
+
+```
+WARNING! stowing . would cause conflicts:
+  * cannot stow .../dot-config/herdr/config.toml over existing target .config/herdr/config.toml since neither a link nor a directory and --adopt not specified
+```
+
+Move or remove the auto-generated file first, then restow:
+
+```sh
+mv ~/.config/herdr/config.toml ~/.config/herdr/config.toml.bak
+stow --target=$HOME --restow .
+```
+
+Validate the tracked config's syntax at any time with `herdr config check` (or `HERDR_CONFIG_PATH=./dot-config/herdr/config.toml herdr config check` to check it in place before stowing).
