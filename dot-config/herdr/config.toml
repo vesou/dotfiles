@@ -1,0 +1,7 @@
+# herdr configuration
+# Place this file at ~/.config/herdr/config.toml
+# Full option reference: `herdr --default-config`
+
+[keys]
+# Match tmux's prefix key (see dot-config/tmux/tmux.conf: `set -g prefix C-space`).
+prefix = "ctrl+space"
