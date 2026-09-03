@@ -23,14 +23,12 @@ source $ZSH/oh-my-zsh.sh
 
 # Node Version Manager (NVM) setup
 export NVM_DIR="$HOME/.nvm"
+export NVM_SYMLINK_CURRENT=true
 load_nvm() {
-  unset -f load_nvm node npm npx nvm
+  unset -f load_nvm nvm
   [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"
   [ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"
 }
-node() { load_nvm; node "$@"; }
-npm() { load_nvm; npm "$@"; }
-npx() { load_nvm; npx "$@"; }
 nvm() { load_nvm; nvm "$@"; }
 
 

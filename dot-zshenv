@@ -1,0 +1,2 @@
+# Keep Node tools available to subprocesses without loading NVM during shell startup.
+export PATH="$HOME/.nvm/current/bin:$PATH"

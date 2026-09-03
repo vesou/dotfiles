@@ -17,6 +17,9 @@ This file is the project's committed home for project-intrinsic agent knowledge:
   README's "Herdr: initial setup" for the fix (move the auto-generated file aside, then restow).
   Current scope is deliberately narrow: only `[keys] prefix` is set (to `ctrl+space`, matching
   tmux's prefix in `dot-config/tmux/tmux.conf`) - no other tmux settings have been ported over yet.
+- **NVM startup:** `dot-zshenv` adds `~/.nvm/current/bin` to every process without loading NVM.
+  `dot-zshrc` sets `NVM_SYMLINK_CURRENT=true` and lazily loads NVM only when `nvm` is invoked.
+  Run `nvm use default` once after first install to create or refresh the `~/.nvm/current` symlink.
 
 ## Maintaining this file
 
